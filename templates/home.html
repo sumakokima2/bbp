@@ -1,0 +1,828 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<h1>Welcome, {{ current_user.username }}</h1>
+<p>This is the home page.</p>
+<a href="{{ url_for('profile') }}">Go to My Profile</a><br>
+
+{% if request.endpoint == 'profile' or 'home' %}
+{% include 'note.html' %}
+{% endif %}
+
+
+<h2>読書プラン</h2>
+<div class="scroll-container">
+    {% for item in plans %}
+    <div class="plan1" type="plan"
+        sourceid="{% for book in item.books %}{{ book.id }}{% if not loop.last %}, {% endif %}{% endfor %}"
+        book="{% for book in item.books %}{{ book.id }}{% if not loop.last %}, {% endif %}{% endfor %}">
+        <p class="planname">{{ item.name }}</p>
+        {% for data in item.data %}
+        <p class="plantitle">{{ data.name }}</p>
+        <p class="planpurpose">{{ data.purpose }}</p>
+        <p class="plantheme">{{ data.theme }}</p>
+
+        {% endfor %}
+        <p class="plancreater">created_by:{{ item.created_by.username }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<button id="showmodal">読書プランを作成</button>
+
+<div id="reading_contents">
+
+</div>
+
+
+
+
+<br>
+
+<button id="showcolumn">コラムを作る</button>
+
+<div id="created_column">
+    <div id="created_column1"></div>
+    <div id="created_column2"></div>
+</div>
+
+<!-- メモボタン -->
+<div id="note-buttons">
+    <input type="text" id="additional_memo" /><br>
+    <button class="note-button" data-category="important">大事</button>
+    <button class="note-button" data-category="confusing">わからない</button>
+    <button class="note-button" data-category="curious">もっと知りたい</button>
+</div>
+
+<div id="planmodal" style="display: none;">
+    <div id="plancontainer">
+        <div id="delete">×close</div>
+        <h2>プラン作成</h2>
+
+        <div class="notecheckcontainer_plan">
+            <div id="important">
+                <h2>大事</h2>
+                {% for note in notes if note.memo_type == "important" %}
+                <div>
+                    <input type="checkbox" name="note_important" value="{% if note.highlight_text %}
+                    {{ note.highlight_text }}
+                    {% endif %}
+                    {% if note.custom_text %}
+                    {{ note.custom_text }}
+                    {% endif %}" id="note_{{ loop.index }}">
+                    <label>
+                        {% if note.highlight_text %}
+                        {{ note.highlight_text }}
+                        {% endif %}
+                        {% if note.custom_text %}
+                        {{ note.custom_text }}
+                        {% endif %}</label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="confusing">
+                <h2>わからない</h2>
+                {% for note in notes if note.memo_type == "confusing" %}
+                <div>
+                    <input type="checkbox" name="note_confusing" value="{% if note.highlight_text %}
+                    {{ note.highlight_text }}
+                    {% endif %}
+                    {% if note.custom_text %}
+                    {{ note.custom_text }}
+                    {% endif %}" id="note_{{ loop.index }}">
+                    <label for="note_column_{{ loop.index }}">
+                        {% if note.highlight_text %}
+                        {{ note.highlight_text }}
+                        {% endif %}
+                        {% if note.custom_text %}
+                        {{ note.custom_text }}
+                        {% endif %}
+                    </label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="curious">
+                <h2>気になる</h2>
+                {% for note in notes if note.memo_type == "curious" %}
+                <div>
+                    <input type="checkbox" name="note_curious" value="{% if note.highlight_text %}
+                    {{ note.highlight_text }}
+                    {% endif %}
+                    {% if note.custom_text %}
+                    {{ note.custom_text }}
+                    {% endif %}" id="note_{{ loop.index }}">
+                    <label for="note_{{ loop.index }}">
+                        {% if note.highlight_text %}
+                        {{ note.highlight_text }}
+                        {% endif %}
+                        {% if note.custom_text %}
+                        {{ note.custom_text }}
+                        {% endif %}
+                    </label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="other">
+                <h2>その他</h2>
+                {% for note in notes if note.memo_type not in ["important", "confusing", "curious"] %}
+                <div>
+                    <input type="checkbox" name="note_other" value="{% if note.highlight_text %}
+                    {{ note.highlight_text }}
+                    {% endif %}
+                    {% if note.custom_text %}
+                    {{ note.custom_text }}
+                    {% endif %}" id="note_{{ loop.index }}">
+                    <label for="note_{{ loop.index }}">
+                        {% if note.highlight_text %}
+                        {{ note.highlight_text }}
+                        {% endif %}
+                        {% if note.custom_text %}
+                        {{ note.custom_text }}
+                        {% endif %}
+                    </label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+
+        </div>
+        <label for="original">その他</label>
+        <input type="text" name="original" value="" id="original">
+
+        <br>
+
+        <button id="create_plan">プランを作る</button>
+    </div>
+</div>
+
+<div id="columnmodal" style="display: none;">
+    <div id="columncontainer">
+        <div id="delete_column">×close</div>
+        <h2>コラム作成</h2>
+
+        <div class="notecheckcontainer_column">
+            <div id="important">
+                <h2>大事</h2>
+                {% for note in notes if note.memo_type == "important" %}
+                <div>
+                    <input type="checkbox" name="note_column_important"
+                        value="{{ note.highlight_text }}{{ note.custom_text }}" id="note_column_{{ loop.index }}">
+                    <label for="note_column_{{ loop.index }}">{{ note.highlight_text }}{{ note.custom_text }}</label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="confusing">
+                <h2>わからない</h2>
+                {% for note in notes if note.memo_type == "confusing" %}
+                <div>
+                    <input type="checkbox" name="note_column_confusing"
+                        value="{{ note.highlight_text }}{{ note.custom_text }}" id="note_column_{{ loop.index }}">
+                    <label for="note_column_{{ loop.index }}">{{ note.highlight_text }}{{ note.custom_text }}</label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="curious">
+                <h2>気になる</h2>
+                {% for note in notes if note.memo_type == "curious" %}
+                <div>
+                    <input type="checkbox" name="note_column_curious"
+                        value="{{ note.highlight_text }}{{ note.custom_text }}" id="note_column_{{ loop.index }}">
+                    <label for="note_column_{{ loop.index }}">{{ note.highlight_text }}{{ note.custom_text }}</label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div id="other">
+                <h2>その他</h2>
+                {% for note in notes if note.memo_type not in ["important", "confusing", "curious"] %}
+                <div>
+                    <input type="checkbox" name="note_column_other"
+                        value="{{ note.highlight_text }}{{ note.custom_text }}" id="note_column_{{ loop.index }}">
+                    <label for="note_column_{{ loop.index }}">{{ note.highlight_text }}{{ note.custom_text }}</label>
+                    <p>{{ note.created_at }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <label for="original">
+            <h2>その他</h2>
+        </label>
+        <input type="text" name="original_column" value="" id="original_column">
+
+        <br>
+
+        <label for="persona">
+            <h2>ペルソナ</h2>こういう視点でのコメントが欲しい(例：小学校社会科の教員)
+        </label>
+        <input type="text" name="column_persona" value="" id="column_persona">
+
+
+        <div class="scroll-container">
+            {% for item in persona %}
+            <div class="p1" type="persona" sourceid="{{item.id}}">
+                <p class="persona1">{{item.username}}</p>
+                {% if item.visibility %}
+
+                {% for key, value in item.visibility.items() %}
+                {% if item.visibility[key] %}
+                <p class="persona2">{{ key_translation[key] }}:{{ item.data[key] }}</p>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <br>
+
+        <button id="create_column">コラムを作る</button>
+    </div>
+</div>
+
+<script>
+    const noteButtons = document.getElementById('note-buttons');
+
+    var books;
+    var selectedbooks = []
+    var lastClickedElement;
+    document.addEventListener("DOMContentLoaded", async function () {
+        const container = document.getElementById("reading_contents");
+
+        // 非同期でデータを取得
+        async function fetchBooks() {
+            try {
+                const response = await fetch("/api/books"); // Flask APIエンドポイント
+                if (!response.ok) throw new Error("データ取得に失敗しました");
+                return await response.json();
+            } catch (error) {
+                console.error("エラー:", error);
+                return [];
+            }
+        }
+
+        // ページロード時にデータを取得してDOMに反映
+        async function loadBooks() {
+            books = await fetchBooks(); // データ取得
+        }
+
+        // ロード時にデータを読み込む
+        await loadBooks();
+    });
+
+    document.querySelectorAll('input[name="note"]').forEach((checkbox) => {
+        checkbox.addEventListener('change', function () {
+            const checkedBoxes = document.querySelectorAll('input[name="note"]:checked');
+            if (checkedBoxes.length > 3) {
+                // 3つを超えた場合、このチェックを無効化
+                this.checked = false;
+                alert('選択できるのは最大3つまでです。');
+            }
+        });
+    });
+    document.getElementById("delete").addEventListener('click', () => {
+        alert("ok")
+        document.getElementById("planmodal").style.display = 'none';
+    })
+
+    document.getElementById("delete_column").addEventListener('click', () => {
+        alert("ok")
+        document.getElementById("columnmodal").style.display = 'none';
+    })
+
+
+    // ハイライトしたときにボタンを表示
+    document.getElementById("showmodal").addEventListener('click', () => {
+        document.getElementById("planmodal").style.display = 'flex';
+    })
+
+    // ハイライトしたときにボタンを表示
+    document.getElementById("showcolumn").addEventListener('click', () => {
+        alert("ok")
+        document.getElementById("columnmodal").style.display = 'flex';
+    })
+
+    // ハイライトしたときにボタンを表示
+    document.addEventListener('mouseup', () => {
+        const selectedText = window.getSelection().toString().trim();
+        const selectedDiv = window.getSelection().anchorNode ?
+            window.getSelection().anchorNode.parentElement.closest('div') :
+            null;
+
+        if (selectedText && selectedDiv) {
+            if (selectedDiv.hasAttribute('data-sourceid')) {
+                noteButtons.style.display = 'flex';
+                document.getElementById("additional_memo").value = "「" + selectedText + "」"
+                noteButtons.setAttribute('data-sourceid', selectedDiv.getAttribute('data-sourceid'));
+                noteButtons.setAttribute('data-type', selectedDiv.getAttribute('data-type'));
+                alert("p")
+            }
+        } else {
+            //noteButtons.style.display = 'none';
+            noteButtons.removeAttribute('data-sourceid');
+            noteButtons.removeAttribute('data-type');
+        }
+    });
+
+
+    const chunkSize = 300; // 一度に表示する文字数
+    let currentIndex = 0; // 現在の表示位置
+    var planName;
+    var selectedPersona;
+    var lastClickedElement1;
+    document.querySelectorAll('.p1').forEach(button => {
+
+        const selectedDiv = window.getSelection().anchorNode ?
+            window.getSelection().anchorNode.parentElement.closest('div') :
+            null;
+
+
+        button.addEventListener('click', async (event) => {
+            const selectedDiv = window.getSelection().anchorNode ?
+                window.getSelection().anchorNode.parentElement.closest('div') :
+                null;
+            if (selectedDiv) {
+
+                if (lastClickedElement1) {
+                    lastClickedElement1.style.backgroundColor = '';
+                }
+
+                if (lastClickedElement1 == selectedDiv) {
+                    lastClickedElement1.style.backgroundColor = '';
+                    lastClickedElement1 = ""
+                    selectedDiv = ""
+                    selectedPersona = ""
+                }
+
+                const planNameElement = selectedDiv.querySelector('.persona1');
+                if (planNameElement) {
+                    planName = planNameElement.textContent.trim();
+                    selectedPersona = planName
+                    console.log("選択されたPlanの名前:", planName);
+                    // 必要に応じて、containerに表示
+                }
+                selectedDiv.style.backgroundColor = '#ffcccc'; // 赤色
+                lastClickedElement1 = selectedDiv
+            }
+        })
+    })
+
+    document.querySelectorAll('.plan1').forEach(button => {
+
+        const selectedDiv = window.getSelection().anchorNode ?
+            window.getSelection().anchorNode.parentElement.closest('div') :
+            null;
+
+
+        button.addEventListener('click', async (event) => {
+            var container = document.getElementById("reading_contents")
+            container.textContent = ""
+            const selectedDiv = window.getSelection().anchorNode ?
+                window.getSelection().anchorNode.parentElement.closest('div') :
+                null;
+            if (selectedDiv) {
+
+                if (lastClickedElement) {
+                    lastClickedElement.style.backgroundColor = '';
+                }
+
+
+                const planNameElement = selectedDiv.querySelector('.planname');
+                if (planNameElement) {
+                    planName = planNameElement.textContent.trim();
+                    console.log("選択されたPlanの名前:", planName);
+                    // 必要に応じて、containerに表示
+                }
+
+                // 現在クリックされた要素の背景色を赤色に変更
+                selectedDiv.style.backgroundColor = '#ffcccc'; // 赤色
+
+                // 現在のクリックされた要素をlastClickedElementとして記録
+
+
+                lastClickedElement = selectedDiv
+
+
+                console.log(book)
+                if (selectedDiv.hasAttribute('sourceid')) {
+                    var book = selectedDiv.getAttribute('book').split(",");
+                    console.log(book)
+                    selectedbooks = book
+
+
+                    for (var i = 0; i < book.length; i++) {
+                        (function () {
+                            var num = book[i].trim(); // 空白をトリム
+                            var bookdata = books.find(b => b.id == num);
+                            var div = document.createElement("div");
+                            div.className = "bookcontainer"
+
+                            div.setAttribute('data-sourceid', num);
+                            div.setAttribute('data-type', "book");
+
+
+                            // タイトル
+                            var title = document.createElement("span");
+                            title.className = "booktitle"
+                            title.textContent = bookdata.title
+                            div.appendChild(title)
+
+                            // 本文
+                            var fullText = bookdata.content; // 本文全体
+                            var chunkSize = 300; // 1回に表示する文字数
+                            var currentIndex = 0; // 現在の表示位置
+
+                            var honbun = document.createElement("p");
+                            honbun.className = "bookline"
+
+                            honbun.innerHTML = fullText.slice(currentIndex,
+                                currentIndex +
+                                chunkSize) + "....";
+                            div.appendChild(honbun);
+
+                            // 続きを読むボタン
+                            var readMoreBtn = document.createElement("span");
+                            readMoreBtn.textContent = "続きを読む";
+                            readMoreBtn.className = "read-more-btn";
+                            div.appendChild(readMoreBtn);
+
+
+                            // 続きを読むボタンのイベントリスナー
+                            readMoreBtn.addEventListener("click", function () {
+                                currentIndex += chunkSize;
+                                if (currentIndex < fullText.length - 1) {
+                                    var nextChunk = fullText.slice(
+                                        currentIndex,
+                                        currentIndex + chunkSize);
+                                    honbun.textContent = honbun.textContent
+                                        .replace(
+                                            "....", ""); // 前回の「....」を削除
+
+                                    honbun.textContent += nextChunk +
+                                        (currentIndex + chunkSize < fullText
+                                            .length ?
+                                            "...." : "");
+                                }
+                                if (currentIndex + chunkSize > fullText
+                                    .length) {
+                                    readMoreBtn.style.display =
+                                        "none"; // 最後まで表示されたらボタンを非表示
+                                }
+                            });
+                            //フッター
+                            var footer = document.createElement("p");
+                            footer.className = "bookfooter"
+                            var span = document.createElement("span")
+                            span.textContent = "『" + "書籍名" + "』" + "　"
+                            footer.appendChild(span)
+
+                            var span = document.createElement("span")
+                            span.textContent = "章1" + "　"
+                            footer.appendChild(span)
+
+                            var span = document.createElement("span")
+                            span.textContent = bookdata.title + "\n" + bookdata
+                                .author
+                            footer.appendChild(span)
+
+                            div.appendChild(footer)
+                            container.appendChild(div);
+                            var hr = document.createElement("hr");
+                            hr.setAttribute("width", "100%");
+                            container.appendChild(hr);
+                        })(); // 即時関数でスコープを閉じる
+                    }
+
+                }
+            }
+
+        })
+    })
+
+    // 各ボタンにクリックイベントを追加
+    document.querySelectorAll('.note-button').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            // event.preventDefault(); // ページ遷移を防ぐ
+            alert("aaaaa")
+
+
+            const selectedText = window.getSelection().toString().trim();
+            var sourceId = noteButtons.getAttribute('data-sourceid');
+            var type = noteButtons.getAttribute('data-type');
+
+            const inputValue = document.getElementById('additional_memo').value;
+            if (!selectedText && !inputValue) return;
+
+            const checkedItems = Array.from(document.querySelectorAll(
+                    'input[name="note"]:checked'))
+                .map(input => input.value);
+
+            if (checkedItems.length > 3) {
+                return;
+            }
+
+            const category = event.target.getAttribute('data-category');
+            console.log(category)
+
+            if (!selectedText && inputValue) {
+                sourceId = 0
+                type = "custom"
+            }
+
+            try {
+                const response = await fetch('/save_note', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        highlight_text: selectedText,
+                        source_type: type,
+                        source_id: sourceId,
+                        memo_type: category,
+                        custom_text: inputValue
+                    }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    noteButtons.style.display = 'none'; // ボタンを非表示
+                } else {
+                    alert(result.error || 'メモの保存に失敗しました。');
+                }
+            } catch (error) {
+                alert('エラーが発生しました。');
+                console.error(error);
+            }
+        });
+    });
+
+
+
+
+
+    document.getElementById("create_plan").onclick = async (e) => {
+        var original = document.getElementById("original_column").value;
+
+        // チェックされた項目を取得
+        const checkedItems = Array.from(document.querySelectorAll('input[name="note"]:checked'))
+            .map(input => input.value);
+        const checkedItems_important = Array.from(document.querySelectorAll(
+                'input[name="note_important"]:checked'))
+            .map(input => input.value);
+        const checkedItems_curious = Array.from(document.querySelectorAll(
+                'input[name="note_curious"]:checked'))
+            .map(input => input.value);
+        const checkedItems_confusing = Array.from(document.querySelectorAll(
+                'input[name="note_confusing"]:checked'))
+            .map(input => input.value);
+        const checkedItems_other = Array.from(document.querySelectorAll(
+                'input[name="note_other"]:checked'))
+            .map(input => input.value);
+
+
+        // フォームデータをオブジェクト形式に変換
+        const formData = {
+            important: checkedItems_important,
+            curious: checkedItems_curious,
+            confusing: checkedItems_confusing,
+            other: checkedItems_other,
+            userinput: original
+        };
+
+        console.log(formData)
+
+        try {
+            // サーバーにデータを送信
+            const response = await fetch("/create_plan", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData) // JSON形式で送信
+            });
+
+            // サーバーからのレスポンスを処理
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log(result)
+            // スクロールコンテナを取得
+            const scrollContainer = document.querySelector(".scroll-container");
+
+
+            // JSONデータのplanを基にDOMを生成
+            // 各プランのコンテナ
+            const planDiv = document.createElement("div");
+            planDiv.classList.add("plan1");
+            planDiv.setAttribute("type", "plan");
+            planDiv.setAttribute("sourceid", result.top_indices.join(',') || "N/A");
+
+            // JSONデータをカスタム属性として追加
+            planDiv.setAttribute("book", result.top_indices.join(',') || "N/A");
+
+            // プラン名
+            const nameParagraph = document.createElement("p");
+            nameParagraph.className = "planname"
+            nameParagraph.textContent = result.plan.name;
+            planDiv.appendChild(nameParagraph);
+            result.plan.data.forEach((data, index) => {
+                var purposeParagraph1 = document.createElement("p");
+                purposeParagraph1.className = "plantitle"
+                purposeParagraph1.textContent = data.name;
+                planDiv.appendChild(purposeParagraph1);
+
+                var purposeParagraph1 = document.createElement("p");
+                purposeParagraph1.className = "planpurpose"
+                purposeParagraph1.textContent = data.purpose;
+                planDiv.appendChild(purposeParagraph1);
+
+                var purposeParagraph1 = document.createElement("p");
+                purposeParagraph1.className = "plantheme"
+                purposeParagraph1.textContent = data.theme;
+                planDiv.appendChild(purposeParagraph1);
+            })
+
+            var purposeParagraph1 = document.createElement("p");
+            purposeParagraph1.className = "plancreater"
+            purposeParagraph1.textContent = "created_by: " + result.plan.created_by;
+            planDiv.appendChild(purposeParagraph1);
+
+            // オンクリックイベントを追加
+            planDiv.addEventListener("click", function () {
+
+                var container = document.getElementById("reading_contents");
+                container.textContent = ""; // コンテンツをリセット
+
+                // 選択されたdivを取得
+                const selectedDiv = window.getSelection().anchorNode ?
+                    window.getSelection().anchorNode.parentElement.closest('div') :
+                    null;
+
+                if (selectedDiv) {
+                    // 選択されたdivが'sourceid'属性を持っているかチェック
+                    if (selectedDiv.hasAttribute('sourceid')) {
+                        var book = selectedDiv.getAttribute('book').split(
+                            ","); // 'book'属性から値を取得し、分割
+
+                        for (var i = 0; i < book.length; i++) {
+                            var num = book[i].trim(); // 前後の空白を削除
+                            var bookdata = vector[num]; // vectorからデータを取得
+
+                            if (!bookdata) {
+                                console.warn(`Book data not found for ID: ${num}`);
+                                continue; // データがない場合はスキップ
+                            }
+
+                            // 書籍コンテナを作成
+                            var div = document.createElement("div");
+                            div.className = "bookcontainer";
+                            div.setAttribute('data-sourceid', num);
+                            div.setAttribute('data-type', "book");
+
+
+                            // タイトル行
+                            var p2 = document.createElement("span");
+                            p2.className = "booktitle";
+                            p2.textContent = bookdata["タイトル1"] || "タイトル未設定";
+                            div.appendChild(p2);
+
+                            // 本文行
+                            var p1 = document.createElement("p");
+                            p1.className = "bookline";
+                            p1.textContent = (bookdata["本文"] || "本文が見つかりません");
+                            div.appendChild(p1);
+
+
+
+                            // フッター情報
+                            var p3 = document.createElement("p");
+                            p3.className = "bookfooter";
+
+                            var span1 = document.createElement("span");
+                            span1.textContent = "『" + (bookdata["書籍名"] || "不明な書籍") + "』　";
+                            p3.appendChild(span1);
+
+                            var span2 = document.createElement("span");
+                            span2.textContent = (bookdata["章1"] || "不明な章") + "　";
+                            p3.appendChild(span2);
+
+                            var span3 = document.createElement("span");
+                            span3.textContent =
+                                (bookdata["タイトル1"] || "不明なタイトル") + "\n" +
+                                (bookdata["著者"] || "不明な著者");
+                            p3.appendChild(span3);
+
+                            div.appendChild(p3);
+
+                            // コンテナに追加
+                            container.appendChild(div);
+
+                            // 区切り線
+                            var hr = document.createElement("hr");
+                            hr.setAttribute("width", "100%");
+                            container.appendChild(hr);
+                        }
+                    }
+                }
+            });
+
+            // 作成したプランをスクロールコンテナに追加
+            scrollContainer.prepend(planDiv);
+
+            document.getElementById("planmodal").style.display = 'none';
+
+
+            ;
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        }
+
+    }
+
+
+
+    //コラムを作る
+    document.getElementById("create_column").onclick = async (e) => {
+        var original = document.getElementById("original_column").value;
+        var persona = document.getElementById("column_persona").value;
+
+        // チェックされた項目を取得
+        const checkedItems_important = Array.from(document.querySelectorAll(
+                'input[name="note_column_important"]:checked'))
+            .map(input => input.value);
+        const checkedItems_curious = Array.from(document.querySelectorAll(
+                'input[name="note_column_curious"]:checked'))
+            .map(input => input.value);
+        const checkedItems_confusing = Array.from(document.querySelectorAll(
+                'input[name="note_column_confusing"]:checked'))
+            .map(input => input.value);
+        const checkedItems_other = Array.from(document.querySelectorAll(
+                'input[name="note_column_other"]:checked'))
+            .map(input => input.value);
+
+        console.log(selectedbooks)
+        // フォームデータをオブジェクト形式に変換
+        const formData = {
+            pertona: persona,
+            selectedPersona: selectedPersona,
+            theme: planName,
+            important: checkedItems_important,
+            curious: checkedItems_curious,
+            confusing: checkedItems_confusing,
+            other: checkedItems_other,
+            userinput: original,
+            book: selectedbooks
+        };
+
+        console.log(formData)
+        try {
+            // サーバーにデータを送信
+            const response = await fetch("/create_column", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData) // JSON形式で送信
+            });
+
+            // サーバーからのレスポンスを処理
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log(result)
+            document.getElementById("columnmodal").style.display = 'none';
+            div1 = document.getElementById("created_column1")
+            div1.innerHTML = result.column
+            div2 = document.getElementById("created_column2")
+            div2.innerHTML = result.advice
+
+            // スクロールコンテナを取得
+            ;
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        }
+
+    }
+</script>
+
+<script src="./static/data/vector.js"></script>
+
+{% endblock %}
