@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<h1>{{ current_user.username }}'s Profile</h1>
+{% if current_user.is_admin %} <div> Admin </div>{% endif %}
+<img src="{{ url_for('static', filename='images/' ~ current_user.profile_image) }}" alt="Profile Image" width="150">
+
+
+{% if request.endpoint == 'profile' or 'home' %}
+{% include 'note.html' %}
+{% endif %}
+
+
+<h2>詳細</h2>
+<ul>
+    <li>Email: {{ current_user.email }}</li>
+    <li>Admin: {{ "Yes" if current_user.is_admin else "No" }}</li>
+    <li>Additional Data: {{ current_user.data }}</li>
+    <li>表示非表示: {{ current_user.visibility }}</li>
+</ul>
+<a href="{{ url_for('account_edit') }}">Edit Account</a>
+
+<h2>読んだ本のリスト</h2>
+<ul>
+    {% for book in read_books %}
+    <li>
+        <strong>{{ book.title }}</strong> by {{ book.author }}
+        <br>Published on: {{ book.published_date }}
+    </li>
+    {% endfor %}
+</ul>
+
+<h2>私のコラム</h2>
+<ul>
+    {% for column in user_columns %}
+    <li>
+        <strong>{{ column.title }}</strong>
+        <p>{{ column.content }}</p>
+        <p><small>作成日: {{ column.created_at.strftime('%Y-%m-%d') }}</small></p>
+    </li>
+    {% endfor %}
+</ul>
+
+
+<h2>利用しているプラン</h2>
+<ul>
+    {% for plan in plans %}
+    <li>
+        <strong>{{ plan.name }}</strong>
+        <p>{{ plan.description }}</p>
+        <p>作成者: {{ plan.created_by.username }}</p>
+        <h4>プランに含まれる本:</h4>
+        <ul>
+            {% for book in plan.books %}
+            <li>{{ book.title }} by {{ book.author }}</li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

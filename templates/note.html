@@ -1,0 +1,9 @@
+<h2>notes</h2>
+{% for item in notes %}
+<div class="note">
+    <p>1{{item.highlight_text}}</p>
+    <p>2{{item.custom_text}}</p>
+    <p>3{{item.memo_type}}</p>
+
+</div>
+{% endfor %}

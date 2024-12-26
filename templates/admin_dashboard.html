@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ "Yes" if user.is_admin else "No" }}</td>
+            <td>
+                <a href="{{ url_for('promote_to_admin', user_id=user.id) }}">Promote to Admin</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h2>書籍一覧</h2>
+<a href="{{ url_for('add_book_a') }}">書籍を追加</a>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>タイトル</th>
+            <th>著者</th>
+            <th>出版日</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for book in books %}
+        <tr data-id="{{ book.id }}">
+            <td>{{ book.id }}</td>
+            <td><input type="text" class="editable" name="title" value="{{ book.title }}"></td>
+            <td><input type="text" class="editable" name="author" value="{{ book.author }}"></td>
+            <td><input type="date" class="editable" name="published_date" value="{{ book.published_date }}"></td>
+            <td><button class="save-btn">保存</button>
+                <button class="delete-btn">削除</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.querySelectorAll('.save-btn').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const row = event.target.closest('tr');
+            const bookId = row.dataset.id;
+            const title = row.querySelector('input[name="title"]').value;
+            const author = row.querySelector('input[name="author"]').value;
+            const publishedDate = row.querySelector('input[name="published_date"]').value;
+
+            try {
+                const response = await fetch(`/update_book/${bookId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        author: author,
+                        published_date: publishedDate
+                    })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                } else {
+                    alert(result.error || 'エラーが発生しました。');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('通信エラーが発生しました。');
+            }
+        });
+    });
+
+
+    // 削除ボタンの処理
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', async (event) => {
+            const row = event.target.closest('tr');
+            const bookId = row.dataset.id;
+
+            if (!confirm('本当に削除しますか？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/delete_book/${bookId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    row.remove(); // 行を削除
+                } else {
+                    alert(result.error || 'エラーが発生しました。');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('通信エラーが発生しました。');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

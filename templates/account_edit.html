@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Account{% endblock %}
+
+{% block content %}
+<h1>Edit Account</h1>
+<form method="POST" action="{{ url_for('account_edit') }}" enctype="multipart/form-data">
+    <label for="username">Username:</label>
+    <input type="text" name="username" id="username" value="{{ current_user.username }}" required>
+    <label for="email">Email:</label>
+    <input type="email" name="email" id="email" value="{{ current_user.email }}" required>
+    <label for="profile_image">Profile Image:</label>
+    <input type="file" name="profile_image" id="profile_image">
+    <div id="questionForm" method="POST" action="/process_user_type">
+
+        <div id="current_type">
+            {% if current_user.type %}
+            <p>{{ researcherType["タイプ"] }}</p>
+            <p>{{ researcherType["傾向"] }}</p>
+            <p>{{ researcherType["欠点・注意点"] }}</p>
+        </div>
+
+        <button id="show_create_type">タイプ診断</button>
+        {% else %}
+        <button id="show_create_type">タイプ診断</button>
+
+        {% endif %}
+
+        <div id="view_type" style="display:none">
+            {% for i, item in random_questions %}
+            <label for="check_{{ i }}">{{ item }}:</label>
+            {% for p in range(1, 6) %}
+            <label><input type="radio" name="{{ item }}" value="{{ p }}"> {{ p }}</label>
+            {% endfor %}
+            <br>
+            {% endfor %}
+            <button id="submit-button" type="button">診断する</button>
+        </div>
+    </div>
+
+
+    {% if user_type %}
+    <div id="result1">
+        <b>{{ user_type }}</b><br>
+        傾向: {{ tendency }}<br>
+        欠点・注意点: {{ caution }}
+    </div>
+    {% endif %}
+
+    <div id="result">
+        <p id="typename"></p>
+        <p id="keikou"></p>
+        <p id="cyui"></p>
+    </div>
+
+    <fieldset>
+        <legend>詳細情報</legend>
+        {% for key, value in current_user.data.items() %}
+        <label for="{{ key }}">{{ key }}:</label>
+        <input type="text" name="data_{{ key }}" id="{{ key }}" value="{{ value }}"><br>
+        {% endfor %}
+    </fieldset>
+
+    <fieldset>
+        <legend>表示/非表示設定</legend>
+        {% for key, value in current_user.visibility.items() %}
+        <label for="{{ key }}">{{ key }}:</label>
+        <input type="hidden" name="visibility_{{ key }}" value="off">
+        <input type="checkbox" name="visibility_{{ key }}" value="on" id="{{ key }}" {% if value %} checked
+            {% endif %}><br>
+        {% endfor %}
+    </fieldset>
+
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<script>
+    document.getElementById("show_create_type").onclick = (event) => {
+        event.preventDefault(); // ページ遷移を防ぐ
+        alert("ok")
+        document.getElementById("view_type").style.display = "block";
+        //document.getElementById("questionForm").style.display = "none";
+
+    }
+    // フォームの送信をAjaxで処理
+    const submitButton = document.getElementById("submit-button")
+
+    submitButton.onclick = async (event) => {
+        event.preventDefault(); // ページ遷移を防ぐ
+
+        // フォーム要素を取得
+        const form1 = document.getElementById("questionForm");
+
+        // フォームデータを収集
+
+        // フォームデータをオブジェクト形式に変換
+        const formData = {};
+
+        // フォーム内のすべてのラジオボタンを取得
+        const radioButtons = document.querySelectorAll("#questionForm input[type='radio']");
+
+        // ラジオボタンをループ処理して選択された値を収集
+        radioButtons.forEach((radio) => {
+            if (radio.checked) {
+                formData[radio.name] = radio.value; // 選択された値をオブジェクトに追加
+            }
+        });
+
+        // JSON形式でデータを確認（コンソールログやアラートで表示）
+        console.log("Form Data:", formData);
+
+        alert(JSON.stringify(formData)); // デバッグ用アラート
+
+        try {
+            // サーバーにデータを送信
+            const response = await fetch("/process_user_type", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData) // JSON形式で送信
+            });
+
+            // サーバーからのレスポンスを処理
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log(result);
+
+            // レスポンスデータを画面に表示
+            const resultDiv = document.getElementById("result");
+            document.getElementById("current_type").style.display = "none";
+
+            resultDiv.innerHTML = `
+            <h3>診断結果</h3>
+            <p>${result["タイプ"]}</p>
+            <p>${result["傾向"]}</p>
+            <p>${result["欠点・注意点"]}</p>
+        `;
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        }
+    };
+</script>
+<script src=../static/data/learning_type.js> </script> {% endblock %}

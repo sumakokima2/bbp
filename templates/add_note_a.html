@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ノート追加</title>
+</head>
+
+<body>
+    <h1>ノート追加</h1>
+    <form action="{{ url_for('add_note_a') }}" method="POST">
+        <label for="title">タイトル:</label>
+        <input type="text" name="title" id="title" required><br>
+        <label for="author">著者:</label>
+        <input type="text" name="author" id="author"><br>
+        <label for="published_date">出版日:</label>
+        <input type="date" name="published_date" id="published_date"><br>
+        <label for="user_id">出版日:</label>
+        <input type="text" name="user_id" id="user_id"><br>
+        <button type="submit">追加</button>
+    </form>
+</body>
+
+</html>
