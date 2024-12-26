@@ -1,0 +1,359 @@
+/* 全体のリセット */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* ヘッダーのスタイル */
+header {
+    background: #007bff;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
+header nav ul li {
+    margin: 0 1rem;
+}
+
+header nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+header nav ul li a:hover {
+    color: #ffd700;
+}
+
+/* メインコンテンツ */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* フォーム */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+form label {
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="file"] {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+form button {
+    padding: 0.7rem;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+form button:hover {
+    background: #0056b3;
+}
+
+/* テーブル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+}
+
+table th,
+table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+table th {
+    background: #007bff;
+    color: #fff;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background: #f2f2f2;
+}
+
+/* ボタンリンク */
+a.button-link {
+    display: inline-block;
+    padding: 0.7rem 1rem;
+    background: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+a.button-link:hover {
+    background: #0056b3;
+}
+
+/* 画像スタイル */
+img {
+    max-width: 100%;
+    border-radius: 50%;
+}
+
+/* メッセージ表示 */
+.flash-message {
+    background: #ffd700;
+    color: #333;
+    padding: 0.5rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+.scroll-container {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+    gap: 10px;
+}
+
+.scroll-container .p1{
+    flex: 0 0 auto;
+    width: 25%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    text-align: left;
+    cursor: pointer;
+}
+
+.scroll-container .plan1{
+    flex: 0 0 auto;
+    width: 35%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    text-align: left;
+    cursor: pointer;
+    position:relative
+}
+
+.scroll-container .plan1:hover{
+    border:5px solid #0056b3 
+}
+
+.scroll-container p{
+    word-break: break-all;
+    display: block;
+    width: 100%;
+    white-space: pre-line;
+}
+
+.bookline{
+    line-height: 3em;
+    font-size: 0.8em;
+    margin-top: 20px;
+}
+
+.bookcontainer{
+    padding: 20px;
+    padding-bottom: 60px;
+    margin: 20px;
+    border: 5px solid #666;
+    border-radius: 50px;
+    position:relative
+}
+
+#planmodal{
+    position: fixed;
+    display:block;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    background-color: #3336;
+}
+
+
+.notecheckcontainer_plan{
+    height: 60%;
+    overflow-y: auto;
+    display: flex;
+    justify-content: space-between;
+}
+#plancontainer{
+    width: 80%;
+    height: 80%;
+    background-color: white;
+    margin : 50px auto;
+    padding: 20px;
+    border-radius: 50px;
+    overflow: auto;
+}
+
+#delete{
+    position: absolute;
+    top: 11%;
+    right: 11%;
+    cursor: pointer;
+}
+
+#columnmodal{
+    position: fixed;
+    display:block;
+    top:0;
+    left:0;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    background-color: #3336;
+}
+
+#columncontainer{
+    width: 80%;
+    height: 80%;
+    background-color: white;
+    margin : 50px auto;
+    padding: 20px;
+    border-radius: 50px;
+    overflow: auto;
+}
+
+#delete_column{
+    position: absolute;
+    top: 11%;
+    right: 11%;
+    cursor: pointer;
+}
+
+.notecheckcontainer{
+    height: 60%;
+    overflow-y: auto;
+}
+.notecheckcontainer_column{
+    height: 60%;
+    overflow-y: auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+.plantitle{
+    color: #364e96;/*文字色*/
+    padding: 0.1em 0;/*上下の余白*/
+    border-left: solid 5px #364e96;/*左線*/
+    padding-left: 5px;
+    /*border-top: solid 3px #364e96;/*上線*/
+    /*border-bottom: solid 3px #364e96;/*下線*/
+}
+.planpurpose{
+    margin: 7px 0 20px;
+    font-size: 0.9em;
+    color: #333
+}
+
+.planname{
+    color: #fff;
+    border: solid 3px #364e96;
+    padding: 0.1em;
+    border-radius: 0.5em;
+    background-color: #364e96;
+    margin-bottom: 0.5em;
+}
+
+.plancreater{
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    text-align: right;
+    font-size: small;
+
+}
+button {
+        border: 2px solid #000;
+        border-radius: 0;
+        background: #fff;
+        width: 100%;
+        height:60px;
+        margin: 20px 0;
+        
+      
+}
+
+button:hover{
+        color: #fff;
+        background: #000;
+}
+
+h2{
+    margin-top: 20px;
+}
+
+.read-more-btn{
+    text-align: center;
+    /* width: 87px; */
+    right: 20px;
+    position: absolute;
+    bottom: 49px;
+    background-color: #364e96;
+    color: white;
+    border-radius: 20px;
+    padding: 1px 10px;
+    cursor: pointer;
+    font-size: small;
+}
+
+.bookfooter{
+    right: 20px;
+    position: absolute;
+    bottom: 5px;
+    font-style: italic;
+    color: #333;
+    font-size: small;
+}
+
+.booktitle{
+    color: #364e96;/*文字色*/
+    padding: 0.5em 0;/*上下の余白*/
+    border-top: solid 3px #364e96;/*上線*/
+    border-bottom: solid 3px #364e96;/*下線*/
+}
